@@ -1,19 +1,59 @@
-build:
-  project: build3/vs2010/0_Bullet3Solution.sln
-
+skip_tags: true
+image: Visual Studio 2017
+clone_depth: 1
+environment:
+  AWS_ACCESS_KEY_ID:
+    secure: 7jhk0oV/vjFsOcsAHLMUcNGUGLuGmnuPxGH0ce/Vky8=
+  AWS_SECRET_ACCESS_KEY:
+    secure: 5KKYpsIHwYHHh5ud0U7Ss0rLumv6G8tkS6abh1B9aq4wY6+1kq5fN/3E5BsdBVKy
+  AWS_DEFAULT_REGION: us-east-1
+  S3_CONFIG_VOLATILE: --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control "public, must-revalidate, proxy-revalidate, max-age=0"
+  GIT_FORMAT: '%%H'
+  matrix:
+  - ARCH: x64
+    GENERATOR: "Visual Studio 15 2017 Win64"
+  - ARCH: x86
+    GENERATOR: "Visual Studio 15 2017"
+matrix:
+  fast_finish: true
+install:
 build_script:
-  - mkdir cm
-  - cd cm
-  - cmake .. -G"Visual Studio 14 2015 Win64"
-  - cmake --build . --target ALL_BUILD --config Release -- /maxcpucount:4 /verbosity:quiet
+- cmd: >-
+    mkdir build
 
-test_script:
-  - ctest --parallel 4 --build-config Release --output-on-failure
+    cd build
 
-before_build:
-  - echo %CD%
-  - ps: cd build3
-  - echo %CD%
-  - premake4  vs2010
-  - ps: cd ..
+    cmake .. -G "%GENERATOR%" -DCMake_MSVC_PARALLEL=ON
 
+    cmake --build . --config Release
+
+    cd lib\Release
+
+    aws s3 cp Bullet3Common.lib s3://build.lwjgl.org/nightly/windows/%ARCH%/bullet/ %S3_CONFIG_VOLATILE%
+
+    aws s3 cp BulletCollision.lib s3://build.lwjgl.org/nightly/windows/%ARCH%/bullet/ %S3_CONFIG_VOLATILE%
+
+    aws s3 cp BulletDynamics.lib s3://build.lwjgl.org/nightly/windows/%ARCH%/bullet/ %S3_CONFIG_VOLATILE%
+
+    aws s3 cp BulletFileLoader.lib s3://build.lwjgl.org/nightly/windows/%ARCH%/bullet/ %S3_CONFIG_VOLATILE%
+
+    aws s3 cp BulletInverseDynamics.lib s3://build.lwjgl.org/nightly/windows/%ARCH%/bullet/ %S3_CONFIG_VOLATILE%
+
+    aws s3 cp BulletInverseDynamicsUtils.lib s3://build.lwjgl.org/nightly/windows/%ARCH%/bullet/ %S3_CONFIG_VOLATILE%
+
+    aws s3 cp BulletRobotics.lib s3://build.lwjgl.org/nightly/windows/%ARCH%/bullet/ %S3_CONFIG_VOLATILE%
+
+    aws s3 cp BulletSoftBody.lib s3://build.lwjgl.org/nightly/windows/%ARCH%/bullet/ %S3_CONFIG_VOLATILE%
+
+    aws s3 cp BulletWorldImporter.lib s3://build.lwjgl.org/nightly/windows/%ARCH%/bullet/ %S3_CONFIG_VOLATILE%
+
+    aws s3 cp LinearMath.lib s3://build.lwjgl.org/nightly/windows/%ARCH%/bullet/ %S3_CONFIG_VOLATILE%
+test: off
+notifications:
+- provider: Email
+  to:
+  - iotsakp@gmail.com
+  subject: Bullet Physics CI
+  on_build_success: true
+  on_build_failure: true
+  on_build_status_changed: true

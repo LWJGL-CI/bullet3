@@ -1,56 +1,30 @@
+dist: trusty
+sudo: false
+git:
+  depth: 1
+env:
+  global:
+  - secure: "Sc6jWsdsqcXx0UwA1Fn9PNi06sROc04XXXisF49fGASQA3x2OmbpYkJCA8oH0eOmNnBGkpZbfhLywJj8dZIQa8utFCLrNIcxI6F6bRQ5NlqN9w9etr3c8OPCJ8DKgNV9CU6sHLE6jgzDKwR3U447VvXksnpw4Z4PAo09+E0ETH+WE/XxUmOZgKirmq1eCXyiZoNMXR/2E+9pPiQYKCXpjgwqjA3+FgzlxKJPd28U0udJhNAYDdKeR7YEwJUVLlE3tKc9dWq5X86uv2LBq2Eas2tlK8vbTRgn+FNw3I9slo8h1AGkixDGJmEi5eu25D9vF62O7+lj0lzC9ogPtsT7Qu8UHHLpVorEuoT/MUfLloe4UXh5LGpH9CGzBMzndDdjD52O2rCsjJLf+k/kFl7bHxzNldo2IKQhEB/4POPMEJ98k5JnwSEEBN+fa+O0BCJE1a2Bb7SA5dzU0LoYp0BezbCk9sonhbgk36qCXEEsbtwbcg0A+BnrQqD7JpYgP3ZqvYkxBQl8c3wTfCivPh3VDH0BnKP+tcEmnnxIKCmQyqUTQg+EL3szFMJVqZMwByUq2G2RSoQ7IXnfaum7RdL2gLo3V2z0uWPCsARwkViPXYvGB1e9MGFzR/x3SllXk+eQniryCZ6SYCVjhD1Ukc2Q4/+wQ5qOksMGIDEnsW/aU2k="
+  - secure: "DS5PFMvjsYHHur/fb25axTfgfexb80TqmWxZaxuSeNPPP6LdvVcWIiaGU1hiOFeF7oVcZW2amuLggcq1bqt+tRZBuEIK8VJl4UiA9MtpUbX9zVLOL/WbYVBlIAXUleLYROCE2smgj21UE4XFluaWA6Lb04z2QpnTxtCdmJGTf0roiOGuqs7DchPAwmH0Dp+qFw0toFf8+1+NtVfmI7Mj8mD+tgTZ1BpRWwqyjYVfVPv5A1gwfjtVuVMigvlCXuV10jgxL6znr8lEszTZP+C32TFar3W4VFewPyVQucpArB5WslgPdoW+fFORHr9A2JLK7DY4Y05jd+lhuLG/MTWepeiT+vwKjDh849mu23d9LKWNX31S7kkgsAco85qQegkha1C8fRXgBRpD34ilab2rUpN0CRJ7FZnNux/oW4NVMzTYIxLXXI/Sn0GYYxZ1J0FlZpOpMhw8jG4+ejFmND0dHQIGRCATW8q6iI2k9PCmgfMD2oeW0PDtfVxZVMQvETM/0vAynH6HKSOISwz/UnmZEoEtLQ9x3k9kdsvKl/mlGtQSIDHotQHqpkD9UTf/i7flRVUrPvZXltimza4DZEKSzaN08PDatbAZxbB4EL6ewRfUdh7NeGpKxpLMOU95CuJw/w3C+CtPs/6ZHCkKUOvfKL3BZJIkFrvhOPeA/jXcE8c="
 language: cpp
-matrix:
-  include:
-    - os: linux
-      compiler: gcc
-      env:
-        - BUILD_NAME=TRUSTY_GCC
-        - SUDO=sudo
-    - os: linux
-      compiler: clang
-      env:
-        - BUILD_NAME=TRUSTY_CLANG
-        - SUDO=sudo
-    - os: linux
-      compiler: gcc
-      env:
-        - BUILD_NAME=XENIAL_GCC
-        - DOCKER_FILE="ubuntu-xenial"
-      services: docker
-    - os: linux
-      compiler: clang
-      env:
-        - BUILD_NAME=XENIAL_CLANG
-        - DOCKER_FILE="ubuntu-xenial"
-      services: docker
-    - os: linux
-      compiler: gcc
-      env:
-        - BUILD_NAME=BIONIC_GCC
-        - DOCKER_FILE="ubuntu-bionic"
-      services: docker
-    - os: linux
-      compiler: clang
-      env:
-        - BUILD_NAME=BIONIC_CLANG
-        - DOCKER_FILE="ubuntu-bionic"
-      services: docker
-    - os: osx
-      compiler: gcc
-      env:
-        - BUILD_NAME=OSX_GCC
-    - os: osx
-      compiler: clang
-      env:
-        - BUILD_NAME=OSX_CLANG
+compiler: gcc
+
 before_install:
-  - if [ -n "$DOCKER_FILE" ]; then
-      docker build -t "$DOCKER_FILE" -f ".ci/docker/$DOCKER_FILE" .;
-      docker run -itd -v $TRAVIS_BUILD_DIR:$TRAVIS_BUILD_DIR --env-file .ci/docker/env.list --name bullet-docker "$DOCKER_FILE";
-    fi
+- pip install --user awscli
+- export PATH=$PATH:$HOME/.local/bin
+
 script:
-  - if [ -n "$DOCKER_FILE" ]; then
-      docker exec bullet-docker /bin/sh -c "cd $TRAVIS_BUILD_DIR && ./.ci/script.sh";
-    else
-      '.ci/script.sh';
-    fi
+- mkdir build
+- cd build
+- cmake ..
+- make -j2
+- "aws s3 cp src/BulletCollision/libBulletCollision.a s3://build.lwjgl.org/nightly/linux/x64/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
+- "aws s3 cp src/BulletDynamics/libBulletDynamics.a s3://build.lwjgl.org/nightly/linux/x64/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
+- "aws s3 cp src/BulletInverseDynamics/libBulletInverseDynamics.a s3://build.lwjgl.org/nightly/linux/x64/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
+- "aws s3 cp src/BulletSoftBody/libBulletSoftBody.a s3://build.lwjgl.org/nightly/linux/x64/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
+- "aws s3 cp src/Bullet3Common/libBullet3Common.a s3://build.lwjgl.org/nightly/linux/x64/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
+- "aws s3 cp src/LinearMath/libLinearMath.a s3://build.lwjgl.org/nightly/linux/x64/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
+- "aws s3 cp Extras/BulletRobotics/libBulletRobotics.a s3://build.lwjgl.org/nightly/linux/x64/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
+- "aws s3 cp Extras/InverseDynamics/libBulletInverseDynamicsUtils.a s3://build.lwjgl.org/nightly/linux/x64/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
+- "aws s3 cp Extras/Serialize/BulletFileLoader/libBulletFileLoader.a s3://build.lwjgl.org/nightly/linux/x64/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
+- "aws s3 cp Extras/Serialize/BulletWorldImporter/libBulletWorldImporter.a s3://build.lwjgl.org/nightly/linux/x64/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""

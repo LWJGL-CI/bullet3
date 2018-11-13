@@ -43,6 +43,8 @@ IF(NOT WIN32)
 	IF(CMAKE_SYSTEM_NAME MATCHES "Linux")
 		MESSAGE("Linux")
 		SET(OSDEF -D_LINUX)
+		SET(CMAKE_C_FLAGS "-fPIC ${CMAKE_C_FLAGS}")
+		SET(CMAKE_CXX_FLAGS "-fPIC ${CMAKE_CXX_FLAGS}")
 	ELSE(CMAKE_SYSTEM_NAME MATCHES "Linux")
 		IF(APPLE)
 			MESSAGE("Apple")
@@ -203,7 +205,7 @@ ENDIF(INTERNAL_CREATE_MSVC_RELATIVE_PATH_PROJECTFILES)
 ENDIF (WIN32)
 
 
-OPTION(BUILD_CPU_DEMOS "Build original Bullet CPU examples" ON)
+OPTION(BUILD_CPU_DEMOS "Build original Bullet CPU examples" OFF)
 
 
 
@@ -385,10 +387,10 @@ IF(BUILD_BULLET3)
 
 			OPTION(BUILD_OPENGL3_DEMOS "Set when you want to build the OpenGL3+ demos" OFF)
 		ELSE()
-			OPTION(BUILD_OPENGL3_DEMOS "Set when you want to build the OpenGL3+ demos" ON)
+			OPTION(BUILD_OPENGL3_DEMOS "Set when you want to build the OpenGL3+ demos" OFF)
 		ENDIF()
 	ELSE()
-		OPTION(BUILD_OPENGL3_DEMOS "Set when you want to build Bullet 3 OpenGL3+ demos" ON)
+		OPTION(BUILD_OPENGL3_DEMOS "Set when you want to build Bullet 3 OpenGL3+ demos" OFF)
 	ENDIF()
 ELSE(BUILD_BULLET3)
 	unset(BUILD_OPENGL3_DEMOS CACHE)
@@ -402,7 +404,7 @@ ELSE()
 	ADD_DEFINITIONS(-DNO_OPENGL3)
 ENDIF(BUILD_OPENGL3_DEMOS)
 
-OPTION(BUILD_BULLET2_DEMOS "Set when you want to build the Bullet 2 demos" ON)
+OPTION(BUILD_BULLET2_DEMOS "Set when you want to build the Bullet 2 demos" OFF)
 IF(BUILD_BULLET2_DEMOS)
 
 	IF(EXISTS ${BULLET_PHYSICS_SOURCE_DIR}/examples AND IS_DIRECTORY ${BULLET_PHYSICS_SOURCE_DIR}/examples)
@@ -423,10 +425,10 @@ ENDIF(BUILD_EXTRAS)
 SUBDIRS(src)
 
 IF("${CMAKE_GENERATOR}" MATCHES "Unix Makefiles")
-	OPTION(INSTALL_LIBS "Set when you want to install libraries" ON)
+	OPTION(INSTALL_LIBS "Set when you want to install libraries" OFF)
 ELSE()
 	IF(APPLE AND FRAMEWORK)
-		OPTION(INSTALL_LIBS "Set when you want to install libraries" ON)
+		OPTION(INSTALL_LIBS "Set when you want to install libraries" OFF)
 	ELSE()
 #by default, don't enable the 'INSTALL' option for Xcode and MSVC projectfiles
 		OPTION(INSTALL_LIBS "Set when you want to install libraries" OFF)
@@ -458,7 +460,7 @@ IF(INSTALL_LIBS)
 ENDIF()
 
 
-OPTION(BUILD_UNIT_TESTS "Build Unit Tests"	ON)
+OPTION(BUILD_UNIT_TESTS "Build Unit Tests"	OFF)
 
 IF (BUILD_UNIT_TESTS)
 	ENABLE_TESTING()
