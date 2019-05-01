@@ -9,6 +9,15 @@ env:
 language: cpp
 compiler: gcc
 
+addons:
+  apt:
+    packages:
+    - cmake
+    - cmake-data
+    - gcc-arm-linux-gnueabihf
+    - g++-arm-linux-gnueabihf
+    - libc6-dev-armhf-cross
+
 before_install:
 - pip install --user awscli
 - export PATH=$PATH:$HOME/.local/bin
@@ -16,15 +25,15 @@ before_install:
 script:
 - mkdir build
 - cd build
-- cmake ..
+- CC="arm-linux-gnueabihf-gcc" CXX="arm-linux-gnueabihf-g++" cmake ..
 - make -j2
-- "aws s3 cp src/BulletCollision/libBulletCollision.a s3://build.lwjgl.org/nightly/linux/x64/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
-- "aws s3 cp src/BulletDynamics/libBulletDynamics.a s3://build.lwjgl.org/nightly/linux/x64/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
-- "aws s3 cp src/BulletInverseDynamics/libBulletInverseDynamics.a s3://build.lwjgl.org/nightly/linux/x64/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
-- "aws s3 cp src/BulletSoftBody/libBulletSoftBody.a s3://build.lwjgl.org/nightly/linux/x64/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
-- "aws s3 cp src/Bullet3Common/libBullet3Common.a s3://build.lwjgl.org/nightly/linux/x64/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
-- "aws s3 cp src/LinearMath/libLinearMath.a s3://build.lwjgl.org/nightly/linux/x64/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
-- "aws s3 cp Extras/BulletRobotics/libBulletRobotics.a s3://build.lwjgl.org/nightly/linux/x64/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
-- "aws s3 cp Extras/InverseDynamics/libBulletInverseDynamicsUtils.a s3://build.lwjgl.org/nightly/linux/x64/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
-- "aws s3 cp Extras/Serialize/BulletFileLoader/libBulletFileLoader.a s3://build.lwjgl.org/nightly/linux/x64/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
-- "aws s3 cp Extras/Serialize/BulletWorldImporter/libBulletWorldImporter.a s3://build.lwjgl.org/nightly/linux/x64/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
+- "aws s3 cp src/BulletCollision/libBulletCollision.a s3://build.lwjgl.org/nightly/linux/arm32/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
+- "aws s3 cp src/BulletDynamics/libBulletDynamics.a s3://build.lwjgl.org/nightly/linux/arm32/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
+- "aws s3 cp src/BulletInverseDynamics/libBulletInverseDynamics.a s3://build.lwjgl.org/nightly/linux/arm32/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
+- "aws s3 cp src/BulletSoftBody/libBulletSoftBody.a s3://build.lwjgl.org/nightly/linux/arm32/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
+- "aws s3 cp src/Bullet3Common/libBullet3Common.a s3://build.lwjgl.org/nightly/linux/arm32/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
+- "aws s3 cp src/LinearMath/libLinearMath.a s3://build.lwjgl.org/nightly/linux/arm32/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
+- "aws s3 cp Extras/BulletRobotics/libBulletRobotics.a s3://build.lwjgl.org/nightly/linux/arm32/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
+- "aws s3 cp Extras/InverseDynamics/libBulletInverseDynamicsUtils.a s3://build.lwjgl.org/nightly/linux/arm32/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
+- "aws s3 cp Extras/Serialize/BulletFileLoader/libBulletFileLoader.a s3://build.lwjgl.org/nightly/linux/arm32/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
+- "aws s3 cp Extras/Serialize/BulletWorldImporter/libBulletWorldImporter.a s3://build.lwjgl.org/nightly/linux/arm32/bullet/ --acl public-read --storage-class REDUCED_REDUNDANCY --cache-control \"public, must-revalidate, proxy-revalidate, max-age=0\""
